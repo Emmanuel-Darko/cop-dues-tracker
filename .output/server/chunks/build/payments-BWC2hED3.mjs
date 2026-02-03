@@ -1,0 +1,119 @@
+import { _ as __nuxt_component_0 } from './nuxt-link-CLZ_2xfO.mjs';
+import { _ as __nuxt_component_1 } from './PaymentEditModal-DyKcQVEv.mjs';
+import { defineComponent, ref, withCtx, createTextVNode, unref, useSSRContext } from 'vue';
+import { ssrRenderAttrs, ssrRenderComponent, ssrIncludeBooleanAttr, ssrLooseContain, ssrLooseEqual, ssrRenderList, ssrRenderAttr, ssrInterpolate } from 'vue/server-renderer';
+import { u as useDues } from './useDues-DE7IVH5r.mjs';
+import { u as useOfficers } from './useOfficers-DNs0Ja1_.mjs';
+import '../nitro/nitro.mjs';
+import 'node:http';
+import 'node:https';
+import 'node:events';
+import 'node:buffer';
+import 'node:fs';
+import 'node:path';
+import 'node:crypto';
+import 'node:url';
+import './server.mjs';
+import '../routes/renderer.mjs';
+import 'vue-bundle-renderer/runtime';
+import 'unhead/server';
+import 'devalue';
+import 'unhead/utils';
+import 'vue-router';
+import '@supabase/ssr';
+import 'date-fns';
+import './useSupabaseClient-DxYTVa8G.mjs';
+
+const _sfc_main = /* @__PURE__ */ defineComponent({
+  __name: "payments",
+  __ssrInlineRender: true,
+  setup(__props) {
+    const { getWeekNumber, getRecentPayments } = useDues();
+    useOfficers();
+    const week = getWeekNumber();
+    const year = (/* @__PURE__ */ new Date()).getFullYear();
+    const form = ref({
+      officer_id: "",
+      amount: 10,
+      week_number: week,
+      year,
+      payment_method: "cash",
+      notes: ""
+    });
+    const officers = ref([]);
+    const recent = ref([]);
+    const submitting = ref(false);
+    const recentLoading = ref(true);
+    const editingPayment = ref(null);
+    const getWeekFromDate = (dateStr) => {
+      if (!dateStr) return "?";
+      return getWeekNumber(new Date(dateStr));
+    };
+    const loadRecent = async () => {
+      recentLoading.value = true;
+      const { data } = await getRecentPayments(8);
+      recent.value = data ?? [];
+      recentLoading.value = false;
+    };
+    const handlePaymentEdited = () => {
+      editingPayment.value = null;
+      loadRecent();
+    };
+    return (_ctx, _push, _parent, _attrs) => {
+      const _component_NuxtLink = __nuxt_component_0;
+      const _component_PaymentEditModal = __nuxt_component_1;
+      _push(`<div${ssrRenderAttrs(_attrs)}><div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"><div><h1 class="font-display font-bold text-2xl md:text-3xl text-slate-800">Record Payment</h1><p class="text-slate-600 mt-1 text-sm">Manual entry — any week, any year</p></div>`);
+      _push(ssrRenderComponent(_component_NuxtLink, {
+        to: "/collect",
+        class: "btn-primary w-full sm:w-auto text-center"
+      }, {
+        default: withCtx((_, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(`Go to Quick Collect`);
+          } else {
+            return [
+              createTextVNode("Go to Quick Collect")
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(`</div><div class="grid lg:grid-cols-3 gap-6"><div class="lg:col-span-2 card p-6"><form class="space-y-5"><div><label class="block text-sm font-medium text-slate-700 mb-1.5">Officer</label><select required class="input-base"><option value=""${ssrIncludeBooleanAttr(Array.isArray(unref(form).officer_id) ? ssrLooseContain(unref(form).officer_id, "") : ssrLooseEqual(unref(form).officer_id, "")) ? " selected" : ""}>Select officer</option><!--[-->`);
+      ssrRenderList(unref(officers), (o) => {
+        _push(`<option${ssrRenderAttr("value", o.id)}${ssrIncludeBooleanAttr(Array.isArray(unref(form).officer_id) ? ssrLooseContain(unref(form).officer_id, o.id) : ssrLooseEqual(unref(form).officer_id, o.id)) ? " selected" : ""}>${ssrInterpolate(o.full_name)} — $${ssrInterpolate(o.monthly_dues ?? 0)}/mo </option>`);
+      });
+      _push(`<!--]--></select></div><div class="grid sm:grid-cols-2 gap-4"><div><label class="block text-sm font-medium text-slate-700 mb-1.5">Amount</label><input${ssrRenderAttr("value", unref(form).amount)} type="number" step="0.01" min="0" required class="input-base"></div><div><label class="block text-sm font-medium text-slate-700 mb-1.5">Method</label><select class="input-base"><option value="cash"${ssrIncludeBooleanAttr(Array.isArray(unref(form).payment_method) ? ssrLooseContain(unref(form).payment_method, "cash") : ssrLooseEqual(unref(form).payment_method, "cash")) ? " selected" : ""}>Cash</option><option value="mobile_money"${ssrIncludeBooleanAttr(Array.isArray(unref(form).payment_method) ? ssrLooseContain(unref(form).payment_method, "mobile_money") : ssrLooseEqual(unref(form).payment_method, "mobile_money")) ? " selected" : ""}>Mobile Money</option><option value="bank_transfer"${ssrIncludeBooleanAttr(Array.isArray(unref(form).payment_method) ? ssrLooseContain(unref(form).payment_method, "bank_transfer") : ssrLooseEqual(unref(form).payment_method, "bank_transfer")) ? " selected" : ""}>Bank Transfer</option></select></div></div><div class="grid sm:grid-cols-2 gap-4"><div><label class="block text-sm font-medium text-slate-700 mb-1.5">Week (1–52)</label><input${ssrRenderAttr("value", unref(form).week_number)} type="number" min="1" max="52" class="input-base"></div><div><label class="block text-sm font-medium text-slate-700 mb-1.5">Year (any)</label><input${ssrRenderAttr("value", unref(form).year)} type="number" min="2015" max="2035" class="input-base"></div></div><div><label class="block text-sm font-medium text-slate-700 mb-1.5">Notes</label><textarea rows="2" class="input-base" placeholder="Optional">${ssrInterpolate(unref(form).notes)}</textarea></div><button type="submit"${ssrIncludeBooleanAttr(unref(submitting)) ? " disabled" : ""} class="btn-primary w-full py-3">${ssrInterpolate(unref(submitting) ? "Recording..." : "Record Payment")}</button></form></div><div class="card p-6"><h3 class="font-semibold text-slate-800 mb-4">Recent</h3>`);
+      if (unref(recentLoading)) {
+        _push(`<div class="text-center py-8"><div class="animate-spin w-6 h-6 border-2 border-accent-500 border-t-transparent rounded-full mx-auto"></div></div>`);
+      } else if (unref(recent).length === 0) {
+        _push(`<div class="text-slate-500 text-sm">No payments yet</div>`);
+      } else {
+        _push(`<div class="space-y-3"><!--[-->`);
+        ssrRenderList(unref(recent), (p) => {
+          _push(`<div class="p-3 rounded-xl bg-accent-50 border border-accent-100 flex justify-between items-center group"><div><p class="font-medium text-slate-800">${ssrInterpolate(p.officer?.full_name)}</p><p class="text-xs text-slate-500">W${ssrInterpolate(getWeekFromDate(p.week_start))}</p></div><div class="flex items-center gap-2"><span class="font-semibold text-accent-600">$${ssrInterpolate(p.amount)}</span><button type="button" class="opacity-0 group-hover:opacity-100 md:opacity-70 p-1.5 rounded-lg hover:bg-accent-100 text-slate-500 hover:text-accent-600 transition" aria-label="Edit"><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button></div></div>`);
+        });
+        _push(`<!--]--></div>`);
+      }
+      _push(`</div></div>`);
+      if (unref(editingPayment)) {
+        _push(ssrRenderComponent(_component_PaymentEditModal, {
+          payment: unref(editingPayment),
+          onClose: ($event) => editingPayment.value = null,
+          onSaved: handlePaymentEdited
+        }, null, _parent));
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`</div>`);
+    };
+  }
+});
+const _sfc_setup = _sfc_main.setup;
+_sfc_main.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("pages/payments.vue");
+  return _sfc_setup ? _sfc_setup(props, ctx) : void 0;
+};
+
+export { _sfc_main as default };
+//# sourceMappingURL=payments-BWC2hED3.mjs.map

@@ -1,0 +1,143 @@
+import { defineComponent, ref, unref, watch, useSSRContext } from 'vue';
+import { ssrRenderAttrs, ssrInterpolate, ssrRenderList, ssrRenderComponent, ssrRenderTeleport, ssrRenderAttr, ssrIncludeBooleanAttr, ssrLooseContain, ssrLooseEqual } from 'vue/server-renderer';
+import { u as useOfficers } from './useOfficers-DNs0Ja1_.mjs';
+import { u as useToast } from './useToast-CSobXYIy.mjs';
+import './useSupabaseClient-DxYTVa8G.mjs';
+import './server.mjs';
+import '../nitro/nitro.mjs';
+import 'node:http';
+import 'node:https';
+import 'node:events';
+import 'node:buffer';
+import 'node:fs';
+import 'node:path';
+import 'node:crypto';
+import 'node:url';
+import '../routes/renderer.mjs';
+import 'vue-bundle-renderer/runtime';
+import 'unhead/server';
+import 'devalue';
+import 'unhead/utils';
+import 'vue-router';
+import '@supabase/ssr';
+
+const _sfc_main$1 = /* @__PURE__ */ defineComponent({
+  __name: "OfficerModal",
+  __ssrInlineRender: true,
+  props: {
+    officer: {}
+  },
+  emits: ["close", "saved"],
+  setup(__props, { emit: __emit }) {
+    const props = __props;
+    useOfficers();
+    const saving = ref(false);
+    const OFFICER_ROLES = ["Elder", "Deacon", "Deaconess"];
+    const form = ref({
+      full_name: "",
+      role: "Deacon",
+      email: "",
+      phone: "",
+      monthly_dues: 0,
+      is_active: true
+    });
+    watch(
+      () => props.officer,
+      (o) => {
+        if (o) {
+          form.value = {
+            full_name: o.full_name ?? "",
+            role: OFFICER_ROLES.includes(o.role || "") ? o.role : "Deacon",
+            email: o.email ?? "",
+            phone: o.phone ?? "",
+            monthly_dues: o.monthly_dues ?? 0,
+            is_active: o.is_active ?? true
+          };
+        } else {
+          form.value = { full_name: "", role: "Deacon", email: "", phone: "", monthly_dues: 0, is_active: true };
+        }
+      },
+      { immediate: true }
+    );
+    return (_ctx, _push, _parent, _attrs) => {
+      ssrRenderTeleport(_push, (_push2) => {
+        _push2(`<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50"><div class="card w-full max-w-md p-6"><h2 class="font-display font-bold text-xl text-slate-800 mb-5">${ssrInterpolate(__props.officer?.id ? "Edit Officer" : "Add Officer")}</h2><form class="space-y-4"><div><label class="block text-sm font-medium text-slate-700 mb-1">Full name *</label><input${ssrRenderAttr("value", unref(form).full_name)} type="text" required class="input-base" placeholder="John Doe"></div><div><label class="block text-sm font-medium text-slate-700 mb-1">Role</label><select class="input-base"><option value="Elder"${ssrIncludeBooleanAttr(Array.isArray(unref(form).role) ? ssrLooseContain(unref(form).role, "Elder") : ssrLooseEqual(unref(form).role, "Elder")) ? " selected" : ""}>Elder</option><option value="Deacon"${ssrIncludeBooleanAttr(Array.isArray(unref(form).role) ? ssrLooseContain(unref(form).role, "Deacon") : ssrLooseEqual(unref(form).role, "Deacon")) ? " selected" : ""}>Deacon</option><option value="Deaconess"${ssrIncludeBooleanAttr(Array.isArray(unref(form).role) ? ssrLooseContain(unref(form).role, "Deaconess") : ssrLooseEqual(unref(form).role, "Deaconess")) ? " selected" : ""}>Deaconess</option></select></div><div><label class="block text-sm font-medium text-slate-700 mb-1">Email</label><input${ssrRenderAttr("value", unref(form).email)} type="email" class="input-base" placeholder="john@example.com"></div><div><label class="block text-sm font-medium text-slate-700 mb-1">Phone</label><input${ssrRenderAttr("value", unref(form).phone)} type="tel" class="input-base" placeholder="+1234567890"></div><div><label class="block text-sm font-medium text-slate-700 mb-1">Monthly dues ($)</label><input${ssrRenderAttr("value", unref(form).monthly_dues)} type="number" step="0.01" min="0" class="input-base"></div>`);
+        if (__props.officer?.id) {
+          _push2(`<div class="flex items-center gap-2"><input id="active"${ssrIncludeBooleanAttr(Array.isArray(unref(form).is_active) ? ssrLooseContain(unref(form).is_active, null) : unref(form).is_active) ? " checked" : ""} type="checkbox" class="rounded border-slate-300"><label for="active" class="text-sm text-slate-700">Active</label></div>`);
+        } else {
+          _push2(`<!---->`);
+        }
+        _push2(`<div class="flex gap-3 pt-2"><button type="submit"${ssrIncludeBooleanAttr(unref(saving)) ? " disabled" : ""} class="btn-primary flex-1">${ssrInterpolate(unref(saving) ? "Saving..." : "Save")}</button><button type="button" class="btn-secondary">Cancel</button></div></form></div></div>`);
+      }, "body", false, _parent);
+    };
+  }
+});
+const _sfc_setup$1 = _sfc_main$1.setup;
+_sfc_main$1.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("components/OfficerModal.vue");
+  return _sfc_setup$1 ? _sfc_setup$1(props, ctx) : void 0;
+};
+const __nuxt_component_0 = Object.assign(_sfc_main$1, { __name: "OfficerModal" });
+const _sfc_main = /* @__PURE__ */ defineComponent({
+  __name: "officers",
+  __ssrInlineRender: true,
+  setup(__props) {
+    const { getOfficers } = useOfficers();
+    const toast = useToast();
+    const officers = ref([]);
+    const loading = ref(true);
+    const modalOpen = ref(false);
+    const editing = ref(null);
+    const closeModal = () => {
+      modalOpen.value = false;
+      editing.value = null;
+    };
+    const handleSaved = () => {
+      closeModal();
+      load();
+      toast.success("Officer saved");
+    };
+    const load = async () => {
+      loading.value = true;
+      const { data } = await getOfficers();
+      officers.value = data ?? [];
+      loading.value = false;
+    };
+    return (_ctx, _push, _parent, _attrs) => {
+      const _component_OfficerModal = __nuxt_component_0;
+      _push(`<div${ssrRenderAttrs(_attrs)}><header class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"><div><h1 class="font-display font-bold text-3xl text-slate-800">Officers</h1><p class="text-slate-600 mt-1">${ssrInterpolate(unref(officers).length)} members</p></div><button type="button" class="btn-primary"> + Add Officer </button></header><div class="card overflow-hidden">`);
+      if (unref(loading)) {
+        _push(`<div class="p-12 text-center"><div class="animate-spin w-10 h-10 border-2 border-accent-500 border-t-transparent rounded-full mx-auto"></div></div>`);
+      } else if (unref(officers).length === 0) {
+        _push(`<div class="p-12 text-center text-slate-500"> No officers yet. Add your first officer to start tracking dues. </div>`);
+      } else {
+        _push(`<div class="overflow-x-auto"><table class="min-w-full"><thead class="bg-slate-50 border-b border-slate-100"><tr><th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Name</th><th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Role</th><th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:table-cell">Dues</th><th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">Contact</th><th class="px-4 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th></tr></thead><tbody class="divide-y divide-slate-100"><!--[-->`);
+        ssrRenderList(unref(officers), (o) => {
+          _push(`<tr class="hover:bg-slate-50/50"><td class="px-4 py-3"><p class="font-medium text-slate-800">${ssrInterpolate(o.full_name)}</p></td><td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">${ssrInterpolate(o.role)}</span></td><td class="px-4 py-3 hidden sm:table-cell"><span class="font-semibold text-slate-800">$${ssrInterpolate(o.monthly_dues ?? 0)}</span><span class="text-slate-500 text-sm">/mo</span></td><td class="px-4 py-3 hidden md:table-cell text-sm text-slate-600">${ssrInterpolate(o.email || o.phone || "—")}</td><td class="px-4 py-3 text-right"><button type="button" class="text-accent-600 hover:text-accent-500 font-medium text-sm mr-3">Edit</button><button type="button" class="text-red-600 hover:text-red-500 font-medium text-sm">Delete</button></td></tr>`);
+        });
+        _push(`<!--]--></tbody></table></div>`);
+      }
+      _push(`</div>`);
+      if (unref(modalOpen)) {
+        _push(ssrRenderComponent(_component_OfficerModal, {
+          officer: unref(editing),
+          onClose: closeModal,
+          onSaved: handleSaved
+        }, null, _parent));
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`</div>`);
+    };
+  }
+});
+const _sfc_setup = _sfc_main.setup;
+_sfc_main.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("pages/officers.vue");
+  return _sfc_setup ? _sfc_setup(props, ctx) : void 0;
+};
+
+export { _sfc_main as default };
+//# sourceMappingURL=officers-h6mMfbPa.mjs.map

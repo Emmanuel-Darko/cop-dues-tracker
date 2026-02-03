@@ -1,0 +1,1 @@
+import{Y as n}from"./CMXogpuX.js";const o=n("app-toasts",()=>[]);let u=0;const p=()=>{const t=(s,r="info",c=3e3)=>{const e={id:++u,message:s,type:r};o.value=[...o.value,e],setTimeout(()=>{o.value=o.value.filter(a=>a.id!==e.id)},c)};return{toasts:o,show:t,success:s=>t(s,"success"),error:s=>t(s,"error",5e3),info:s=>t(s,"info")}};export{p as u};

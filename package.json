@@ -1,0 +1,21 @@
+{
+  "name": "church-dues-tracker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "devDependencies": {
+    "@nuxtjs/supabase": "^1.6.2",
+    "@nuxtjs/tailwindcss": "^6.14.0",
+    "nuxt": "^4.0.0"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.93.3",
+    "date-fns": "^4.1.0"
+  }
+}
