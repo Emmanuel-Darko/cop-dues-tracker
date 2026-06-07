@@ -2,7 +2,7 @@
 /// <reference path="nitro-layouts.d.ts" />
 /// <reference path="app.config.d.ts" />
 /// <reference path="runtime-config.d.ts" />
-/// <reference types="/Users/kode/Desktop/KODETECH/Cop/Church Dues Tracker 2/node_modules/@nuxt/nitro-server/dist/index.mjs" />
+/// <reference types="/Users/kode/Desktop/KODETECH/Cop/Cop-dues-tracker/node_modules/@nuxt/nitro-server/dist/index.mjs" />
 /// <reference path="nitro-middleware.d.ts" />
 
 import type { RuntimeConfig } from 'nuxt/schema'

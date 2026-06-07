@@ -1,4 +1,4 @@
-import _default from "/Users/kode/Desktop/KODETECH/Cop/Church Dues Tracker 2/app/layouts/default.vue";
+import _default from "/Users/kode/Desktop/KODETECH/Cop/Cop-dues-tracker/app/layouts/default.vue";
 import type { ComputedRef, MaybeRef } from 'vue'
 declare module 'nuxt/app' {
   interface NuxtLayouts {
