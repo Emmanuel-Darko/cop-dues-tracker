@@ -1,9 +1,9 @@
 {
-  "_hash": "TietKpzDTWO2gVZVayo1rNXvvGwlAfmdXONaPL6fvrs",
+  "_hash": "vJvVRAGxeaJNwdhOUgv1p7wtbc5Ebv8I_9hoJXwLgiI",
   "project": {
     "rootDir": "/Users/kode/Desktop/KODETECH/Cop/Cop-dues-tracker"
   },
   "versions": {
-    "nuxt": "4.3.0"
+    "nuxt": "4.4.8"
   }
 }
