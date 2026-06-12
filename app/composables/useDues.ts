@@ -8,11 +8,11 @@ export interface Payment {
   paid_at?: string
   payment_method?: string
   notes?: string
-  officer?: { full_name: string; email?: string; monthly_dues?: number }
+  officer?: { full_name: string; role?: string; email?: string; monthly_dues?: number }
 }
 
 export interface OfficerWithStatus {
-  officer: { id: string; full_name: string; email?: string; monthly_dues?: number }
+  officer: { id: string; full_name: string; role?: string; email?: string; monthly_dues?: number }
   paidThisWeek: boolean
   amount?: number
   paidAt?: string
@@ -21,16 +21,39 @@ export interface OfficerWithStatus {
 }
 
 export interface PaymentReport {
-  officer: { id: string; full_name: string; email?: string }
+  officer: { id: string; full_name: string; role?: string; email?: string }
   total_paid: number
   weeks_paid: number
   last_payment: number
   status: 'up_to_date' | 'behind' | 'no_payments'
 }
 
+export interface MonthlyTotal {
+  month: number       // 0-11
+  label: string       // 'Jan', 'Feb', …
+  total: number
+  count: number
+}
+
+export interface MethodBreakdown {
+  method: string
+  label: string
+  total: number
+  count: number
+}
+
+export interface WeeklyTick {
+  week: number
+  weekStart: string
+  label: string
+  total: number
+  count: number
+}
+
 export const useDues = () => {
   const supabase = useSupabaseClient()
 
+  /* ── Week helpers ── */
   const getWeekNumber = (date: Date = new Date()) => {
     const firstDayOfYear = new Date(date.getFullYear(), 0, 1)
     const pastDaysOfYear = (date.getTime() - firstDayOfYear.getTime()) / 86400000
@@ -52,6 +75,7 @@ export const useDues = () => {
     return getWeekStartDate(getWeekNumber(now), now.getFullYear())
   }
 
+  /* ── Core queries ── */
   const getOfficersWithWeeklyStatus = async (week?: number, year?: number) => {
     const w = week ?? getWeekNumber()
     const y = year ?? new Date().getFullYear()
@@ -59,10 +83,7 @@ export const useDues = () => {
 
     const [officersRes, paymentsRes] = await Promise.all([
       supabase.from('officers').select('*').eq('is_active', true).order('full_name'),
-      supabase
-        .from('payments')
-        .select('*')
-        .eq('week_start', weekStart),
+      supabase.from('payments').select('*').eq('week_start', weekStart),
     ])
 
     const officers = officersRes.data ?? []
@@ -88,7 +109,7 @@ export const useDues = () => {
     const weekStart = getWeekStartDate(currentWeek, currentYear)
     const { data, error } = await supabase
       .from('payments')
-      .select(`*, officer:officers(full_name, email, monthly_dues)`)
+      .select(`*, officer:officers(full_name, role, email, monthly_dues)`)
       .eq('week_start', weekStart)
       .order('paid_at', { ascending: false })
     return { data, error }
@@ -97,7 +118,7 @@ export const useDues = () => {
   const getRecentPayments = async (limit = 10) => {
     const { data, error } = await supabase
       .from('payments')
-      .select(`*, officer:officers(full_name, email, monthly_dues)`)
+      .select(`*, officer:officers(full_name, role, email, monthly_dues)`)
       .order('paid_at', { ascending: false })
       .limit(limit)
     return { data, error }
@@ -123,7 +144,7 @@ export const useDues = () => {
         payment_method: payment.payment_method ?? 'cash',
         notes: payment.notes ?? null,
       }])
-      .select(`*, officer:officers(full_name, email)`)
+      .select(`*, officer:officers(full_name, role, email)`)
       .single()
     return { data, error }
   }
@@ -136,7 +157,7 @@ export const useDues = () => {
       .from('payments')
       .update(updates)
       .eq('id', paymentId)
-      .select(`*, officer:officers(full_name, email)`)
+      .select(`*, officer:officers(full_name, role, email)`)
       .single()
     return { data, error }
   }
@@ -176,6 +197,110 @@ export const useDues = () => {
     return { data: report, error: null }
   }
 
+  /* ── Analytics ── */
+  const getAnalytics = async (year?: number) => {
+    const selectedYear = year ?? new Date().getFullYear()
+    const { data: payments } = await supabase
+      .from('payments')
+      .select(`*, officer:officers(full_name, role)`)
+      .order('week_start')
+
+    const all = payments ?? []
+    const yearPayments = all.filter((p) => new Date(p.week_start).getFullYear() === selectedYear)
+
+    const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+    // Monthly totals
+    const monthMap = new Map<number, { total: number; count: number }>()
+    for (let m = 0; m < 12; m++) monthMap.set(m, { total: 0, count: 0 })
+    yearPayments.forEach((p) => {
+      const m = new Date(p.week_start).getMonth()
+      const cur = monthMap.get(m)!
+      cur.total += Number(p.amount)
+      cur.count += 1
+    })
+    const monthly: MonthlyTotal[] = Array.from(monthMap.entries()).map(([month, v]) => ({
+      month, label: MONTH_LABELS[month], ...v,
+    }))
+
+    // Payment method breakdown
+    const methodMap = new Map<string, { total: number; count: number }>()
+    yearPayments.forEach((p) => {
+      const m = p.payment_method ?? 'cash'
+      const cur = methodMap.get(m) ?? { total: 0, count: 0 }
+      cur.total += Number(p.amount)
+      cur.count += 1
+      methodMap.set(m, cur)
+    })
+    const METHOD_LABELS: Record<string, string> = {
+      cash: 'Cash', mobile_money: 'Mobile Money', bank_transfer: 'Bank Transfer', check: 'Check',
+    }
+    const byMethod: MethodBreakdown[] = Array.from(methodMap.entries())
+      .map(([method, v]) => ({ method, label: METHOD_LABELS[method] ?? method, ...v }))
+      .sort((a, b) => b.total - a.total)
+
+    // Summary
+    const totalCollected = yearPayments.reduce((s, p) => s + Number(p.amount), 0)
+    const totalPayments = yearPayments.length
+    const weeksWithData = new Set(yearPayments.map((p) => p.week_start)).size
+    const avgPerWeek = weeksWithData > 0 ? totalCollected / weeksWithData : 0
+    const bestMonth = monthly.reduce((best, m) => m.total > best.total ? m : best, monthly[0])
+
+    return {
+      data: { monthly, byMethod, totalCollected, totalPayments, weeksWithData, avgPerWeek, bestMonth },
+      error: null,
+    }
+  }
+
+  /* ── Weekly trend (last N weeks) ── */
+  const getWeeklyTrend = async (numWeeks = 8) => {
+    const now = new Date()
+    const ticks: WeeklyTick[] = []
+    for (let i = numWeeks - 1; i >= 0; i--) {
+      const d = new Date(now)
+      d.setDate(d.getDate() - i * 7)
+      const w = getWeekNumber(d)
+      const y = d.getFullYear()
+      const ws = getWeekStartDate(w, y)
+      ticks.push({
+        week: w, weekStart: ws,
+        label: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        total: 0, count: 0,
+      })
+    }
+
+    const starts = ticks.map((t) => t.weekStart)
+    const { data: payments } = await supabase
+      .from('payments')
+      .select('amount, week_start')
+      .in('week_start', starts)
+
+    const payMap = new Map<string, { total: number; count: number }>()
+      ; (payments ?? []).forEach((p) => {
+        const cur = payMap.get(p.week_start) ?? { total: 0, count: 0 }
+        cur.total += Number(p.amount)
+        cur.count += 1
+        payMap.set(p.week_start, cur)
+      })
+    ticks.forEach((t) => {
+      const v = payMap.get(t.weekStart)
+      if (v) { t.total = v.total; t.count = v.count }
+    })
+
+    return { data: ticks, error: null }
+  }
+
+  /* ── All payments for detailed export ── */
+  const getAllPaymentsForYear = async (year?: number) => {
+    const selectedYear = year ?? new Date().getFullYear()
+    const { data, error } = await supabase
+      .from('payments')
+      .select(`*, officer:officers(full_name, role, email, phone, monthly_dues)`)
+      .order('week_start', { ascending: false })
+    const filtered = (data ?? []).filter((p) => new Date(p.week_start).getFullYear() === selectedYear)
+    return { data: filtered, error }
+  }
+
   return {
     getWeekNumber,
     getWeekStartDate,
@@ -187,5 +312,8 @@ export const useDues = () => {
     updatePayment,
     deletePayment,
     getPaymentReport,
+    getAnalytics,
+    getWeeklyTrend,
+    getAllPaymentsForYear,
   }
 }

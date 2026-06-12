@@ -29,6 +29,15 @@
       "@@/*": [
         "../*"
       ],
+      "vue-router": [
+        "../node_modules/vue-router"
+      ],
+      "vue-router/auto-routes": [
+        "../node_modules/vue-router/vue-router-auto-routes"
+      ],
+      "nuxt": [
+        "../node_modules/.pnpm/nuxt@4.4.8_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7__@babel+plugin-syntax-typ_20d419a9222f293a00d91e3a6d7170dc/node_modules/nuxt"
+      ],
       "@unhead/vue": [
         "../node_modules/@unhead/vue"
       ],
@@ -44,32 +53,8 @@
       "@vue/compiler-sfc": [
         "../node_modules/@vue/compiler-sfc"
       ],
-      "vue-router": [
-        "../node_modules/vue-router"
-      ],
-      "vue-router/auto-routes": [
-        "../node_modules/vue-router/vue-router-auto-routes"
-      ],
-      "unplugin-vue-router/client": [
-        "../node_modules/unplugin-vue-router/client"
-      ],
       "@nuxt/schema": [
         "../node_modules/@nuxt/schema"
-      ],
-      "nuxt": [
-        "../node_modules/nuxt"
-      ],
-      "vite/client": [
-        "../node_modules/vite/client"
-      ],
-      "nitropack/types": [
-        "../node_modules/nitropack/types"
-      ],
-      "nitropack/runtime": [
-        "../node_modules/nitropack/runtime"
-      ],
-      "nitropack": [
-        "../node_modules/nitropack"
       ],
       "defu": [
         "../node_modules/defu"
@@ -85,6 +70,18 @@
       ],
       "crossws": [
         "../node_modules/crossws"
+      ],
+      "nitropack": [
+        "../node_modules/nitropack"
+      ],
+      "vite/client": [
+        "../node_modules/vite/client"
+      ],
+      "nitropack/types": [
+        "../node_modules/nitropack/types"
+      ],
+      "nitropack/runtime": [
+        "../node_modules/nitropack/runtime"
       ],
       "#shared": [
         "../shared"
@@ -105,16 +102,16 @@
         "./*"
       ],
       "#internal/nuxt/paths": [
-        "../node_modules/@nuxt/nitro-server/dist/runtime/utils/paths"
+        "../node_modules/.pnpm/@nuxt+nitro-server@4.4.8_@babel+plugin-syntax-typescript@7.29.7_@babel+core@7.29.7__db0_433be1d69356ac526c18820870940fe8/node_modules/@nuxt/nitro-server/dist/runtime/utils/paths"
       ],
       "#unhead/composables": [
-        "../node_modules/nuxt/dist/head/runtime/composables"
+        "../node_modules/.pnpm/nuxt@4.4.8_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7__@babel+plugin-syntax-typ_20d419a9222f293a00d91e3a6d7170dc/node_modules/nuxt/dist/head/runtime/composables"
       ],
       "#supabase/server": [
-        "../node_modules/@nuxtjs/supabase/dist/runtime/server/services"
+        "../node_modules/.pnpm/@nuxtjs+supabase@1.6.2/node_modules/@nuxtjs/supabase/dist/runtime/server/services"
       ],
       "#supabase/server/*": [
-        "../node_modules/@nuxtjs/supabase/dist/runtime/server/services/*"
+        "../node_modules/.pnpm/@nuxtjs+supabase@1.6.2/node_modules/@nuxtjs/supabase/dist/runtime/server/services/*"
       ],
       "#supabase/database": [
         "./types/supabase-database"
@@ -130,6 +127,10 @@
   },
   "include": [
     "./types/nitro-nuxt.d.ts",
+    "../node_modules/.pnpm/@nuxtjs+supabase@1.6.2/node_modules/runtime/server",
+    "../node_modules/.pnpm/@nuxtjs+supabase@1.6.2/node_modules/dist/runtime/server",
+    "../node_modules/.pnpm/@nuxtjs+tailwindcss@6.14.0_magicast@0.5.3_yaml@2.9.0/node_modules/runtime/server",
+    "../node_modules/.pnpm/@nuxtjs+tailwindcss@6.14.0_magicast@0.5.3_yaml@2.9.0/node_modules/dist/runtime/server",
     "../node_modules/runtime/server",
     "../node_modules/dist/runtime/server",
     "../server/**/*",
@@ -138,9 +139,9 @@
   ],
   "exclude": [
     "../node_modules",
-    "../node_modules/nuxt/node_modules",
-    "../node_modules/@nuxtjs/supabase/node_modules",
-    "../node_modules/@nuxtjs/tailwindcss/node_modules",
+    "../node_modules/.pnpm/nuxt@4.4.8_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7__@babel+plugin-syntax-typ_20d419a9222f293a00d91e3a6d7170dc/node_modules/nuxt/node_modules",
+    "../node_modules/.pnpm/@nuxtjs+supabase@1.6.2/node_modules/@nuxtjs/supabase/node_modules",
+    "../node_modules/.pnpm/@nuxtjs+tailwindcss@6.14.0_magicast@0.5.3_yaml@2.9.0/node_modules/@nuxtjs/tailwindcss/node_modules",
     "../node_modules/@nuxt/devtools/node_modules",
     "../node_modules/@nuxt/telemetry/node_modules",
     "../dist"
